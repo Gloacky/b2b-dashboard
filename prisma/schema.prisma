@@ -1,0 +1,159 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+enum OrgRole {
+  OWNER
+  ADMIN
+  ANALYST
+  CLIENT
+}
+
+enum DataSourceProvider {
+  CSV
+  GA4
+  META_ADS
+}
+
+enum DataSourceStatus {
+  CONNECTED
+  DISCONNECTED
+  ERROR
+}
+
+enum SyncJobStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+enum ReportStatus {
+  DRAFT
+  QUEUED
+  READY
+  FAILED
+}
+
+model User {
+  id String @id @default(cuid())
+  authUserId String @unique
+  email String @unique
+  name String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships Membership[]
+}
+
+model Organization {
+  id String @id @default(cuid())
+  name String
+  slug String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  membership Membership[]
+  dataSources DataSource[]
+  syncJobs SyncJob[]
+  metrics MetricsDaily[]
+  reports Report[]
+}
+
+model Membership {
+  id String @id @default(cuid())
+  userId String
+  organizationId String
+  role OrgRole @default(CLIENT)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id],onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id],onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+  @@index([organizationId, role])
+}
+
+model DataSource {
+  id String @id @default(cuid())
+  organizationId String
+  provider DataSourceProvider
+  name String
+  status DataSourceStatus @default(DISCONNECTED)
+  credentials Json?
+  lastSyncedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId],references: [id],onDelete: Cascade)
+  metrics MetricsDaily[]
+  syncJobs SyncJob[]
+
+  @@index([organizationId,provider])
+}
+
+model SyncJob {
+  id String @id @default(cuid())
+  organizationId String
+  dataSourceId String
+  status SyncJobStatus @default(PENDING)
+  progress Int @default(0)
+  message String?
+  startedAt DateTime?
+  finishedAt DateTime?
+  createdAt DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId],references: [id],onDelete: Cascade)
+  dataSource DataSource @relation(fields: [dataSourceId],references: [id],onDelete: Cascade)
+
+  @@index([organizationId,status,createdAt])
+  @@index([dataSourceId,createdAt])
+}
+
+model MetricsDaily {
+  id String @id @default(cuid())
+  organizationId String
+  dataSourceId String?
+  date DateTime @db.Date
+  channel String?
+  campaign String?
+
+  sessions Int @default(0)
+  impressions Int @default(0)
+  clicks Int @default(0)
+  conversions Int @default(0)
+  spend Decimal @default(0) @db.Decimal(12,2)
+  revenue Decimal @default(0) @db.Decimal(12,2)
+
+  organization Organization @relation(fields: [organizationId], references: [id],onDelete: Cascade)
+  dataSource DataSource? @relation(fields: [dataSourceId],references: [id],onDelete: SetNull)
+
+  @@index([organizationId,date])
+  @@index([organizationId,channel,date])
+  @@index([dataSourceId,date])
+}
+
+model Report {
+  id String @id @default(cuid())
+  organizationId String
+  name String
+  status ReportStatus @default(DRAFT)
+  fileUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId],references: [id],onDelete: Cascade)
+  @@index([organizationId,createdAt])
+
+}

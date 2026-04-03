@@ -1,7 +1,8 @@
 import { cache } from "react";
 import { Prisma } from "@/app/generated/prisma/client";
+
 import { prisma } from "@/lib/db/prisma";
-import { auth } from "@/lib/auth/server";
+import { getSessionUser } from "@/lib/auth/server";
 
 const currentUserSelect = {
     id: true,
@@ -34,11 +35,14 @@ function normalizeNullableName(name: string | null | undefined) {
 
 /**
  * cache() prevents duplicate DB work inside a single request tree.
+ *
+ * This helper:
+ * 1. Reads the Neon Auth session
+ * 2. Syncs/creates the local Prisma User row
+ * 3. Returns the app user with memberships
  */
 export const getCurrentAppUser = cache(async () => {
-    
-    const { data: session } = await auth.getSession();
-    const sessionUser = session?.user;
+    const sessionUser = await getSessionUser();
 
     if (!sessionUser) {
         return null;
@@ -46,39 +50,27 @@ export const getCurrentAppUser = cache(async () => {
 
     const normalizedName = normalizeNullableName(sessionUser.name);
 
-    
-    const existingUser = await prisma.user.findUnique({
-        where: { authUserId: sessionUser.id },
+    /**
+     * upsert is cleaner and safer than separate find/create/update.
+     *
+     * It guarantees:
+     * - a local User row exists for every authenticated session
+     * - profile changes from auth sync to the app DB
+     * - no race conditions on first login
+     */
+    return prisma.user.upsert({
+        where: {
+            authUserId: sessionUser.id,
+        },
+        create: {
+            authUserId: sessionUser.id,
+            email: sessionUser.email,
+            name: normalizedName,
+        },
+        update: {
+            email: sessionUser.email,
+            name: normalizedName,
+        },
         select: currentUserSelect,
     });
-
-    if (!existingUser) {
-        return prisma.user.create({
-            data: {
-                authUserId: sessionUser.id,
-                email: sessionUser.email,
-                name: normalizedName,
-            },
-            select: currentUserSelect,
-        });
-    }
-
-    /**
-     * Sync auth-profile data if it changed.
-     */
-    if (
-        existingUser.email !== sessionUser.email ||
-        existingUser.name !== normalizedName
-    ) {
-        return prisma.user.update({
-            where: { id: existingUser.id },
-            data: {
-                email: sessionUser.email,
-                name: normalizedName,
-            },
-            select: currentUserSelect,
-        });
-    }
-
-    return existingUser;
 });

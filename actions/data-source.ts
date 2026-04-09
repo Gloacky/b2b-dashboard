@@ -92,7 +92,7 @@ export async function uploadCsvDataSourceAction(_prevState:UploadCsvState,formDa
                     type:"csv-upload",
                     fileKey:storedFile.fileKey,
                     originalFileName:storedFile.originalFileName,
-                    sizeInBtytes:storedFile.sizeInBytes,
+                    sizeInBytes:storedFile.sizeInBytes,
                     uploadedAt: new Date().toISOString(),
                     format:"strict-v1",
                 },

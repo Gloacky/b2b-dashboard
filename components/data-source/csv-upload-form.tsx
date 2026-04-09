@@ -25,7 +25,7 @@ export function CsvUploadForm({orgSlug,disabled}:{orgSlug:string;disabled:boolea
                     minLength={2}
                     maxLength={80}
                     disabled={disabled}
-                    className="block h-11 w-full rounded-xl border border-zinc-300 bg-white px-4 text-sm outline-none transition focus:border-zinc-900 disabled:cursor-not-allowed disabled:bg-zinc-100"
+                    className="block h-11 w-full text-black rounded-xl border border-zinc-300 bg-white px-4 text-sm outline-none transition focus:border-zinc-900 disabled:cursor-not-allowed disabled:bg-zinc-100"
                     placeholder="March performance import" 
                 />  
             </div>
@@ -42,7 +42,7 @@ export function CsvUploadForm({orgSlug,disabled}:{orgSlug:string;disabled:boolea
                     required
                     accept=".csv,text/csv"
                     disabled={disabled}
-                    className="block w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-zinc-950 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white disabled:cursor-not-allowed disabled:bg-zinc-100"
+                    className="block w-full text-black rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-zinc-950 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white disabled:cursor-not-allowed disabled:bg-zinc-100"
                 />
                 <p className="text-xs leading-5 text-zinc-500">
                     Files must be 10MB or smaller

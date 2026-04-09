@@ -78,7 +78,7 @@ export function MobileSidebar({currentOrgSlug,currentOrgName,organizations,user}
                             </Link>
 
                             <Link
-                                href={`/${currentOrgSlug}/data-sources`}
+                                href={`/${currentOrgSlug}/data-source`}
                                 onClick={() => setOpen(false)}
                                 className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950"
                             >

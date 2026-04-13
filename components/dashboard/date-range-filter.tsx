@@ -42,14 +42,14 @@ export function DateRangeFilter({ from, to,}:{from:string;to:string}){
                 <label htmlFor="from-date" className="text-sm text-zinc-600">
                     From
                 </label>
-                <input id="from-date" type="date" value={from} onChange={handleFromChange} className="h-9 rounded-lg border border-zinc-300 bg-white px-3 text-sm outline-none focus:border-zinc-900" />
+                <input id="from-date" type="date" value={from} onChange={handleFromChange} className="h-9 rounded-lg text-zinc-900 border border-zinc-300 bg-white px-3 text-sm outline-none focus:border-zinc-900" />
             </div>
 
             <div className="flex items-center gap-2">
                 <label htmlFor="to-date" className="text-sm text-zinc-600">
                     To
                 </label>
-                <input id="to-date" type="date" value={to} onChange={handleToChange} className="h-9 rounded-lg border border-zinc-300 bg-white px-3 text-sm outline-none focus:border-zinc-900" />
+                <input id="to-date" type="date" value={to} onChange={handleToChange} className="h-9 rounded-lg text-zinc-900 border border-zinc-300 bg-white px-3 text-sm outline-none focus:border-zinc-900" />
             </div>
 
             <div className="flex gap-1">

@@ -1,19 +1,18 @@
 import "server-only";
 
 import { prisma } from "@/lib/db/prisma";
-import { reverse } from "dns";
+
 
 export type DateRange={
     from: Date;
     to: Date;
 };
 
-function getDefaultDateRange(): DateRange{
+function getDefaultDateRange(): DateRange {
     const to = new Date();
     const from = new Date();
-    from.setDate(from.getDate() - 30);
-
-    return {from,to};
+    from.setFullYear(from.getFullYear() - 1);
+    return { from, to };
 }
 
 export function parseDateRangeFormParams(params:{from?:string;to?:string}): DateRange{

@@ -50,11 +50,11 @@ export function RevenueChart({data}:{data:DailyData[]}){
                     />
 
                     <Tooltip
-                        formatter={(value: number, name: string) => [
-                            formatCurrency(value),
-                            name.charAt(0).toUpperCase() + name.slice(1),
+                        formatter={(value: any, name: any) => [
+                            formatCurrency(Number(value)),
+                            String(name).charAt(0).toUpperCase() + String(name).slice(1),
                         ]}
-                        labelFormatter={formatDateLabel}
+                        labelFormatter={(label: any) => formatDateLabel(label as string)}
                         contentStyle={{
                             borderRadius: "12px",
                             border: "1px solid #e4e4e7",

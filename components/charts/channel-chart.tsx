@@ -69,7 +69,7 @@ export function ChannelChart({ data }: { data: ChannelData[] }) {
                     />
 
                     <Tooltip
-                        formatter={(value: number) => [formatCurrency(value), "Revenue"]}
+                        formatter={(value: any) => [formatCurrency(Number(value)), "Revenue"]}
                         contentStyle={{
                             borderRadius: "12px",
                             border: "1px solid #e4e4e7",

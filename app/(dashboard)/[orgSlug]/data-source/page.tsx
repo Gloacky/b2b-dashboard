@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { ActiveJobsAutoRefresh } from "@/components/data-source/active-jobs-auto-refresh";
+import { LiveSyncJobRow } from "@/components/data-source/live-sync-job-row";
 import { CsvUploadForm } from "@/components/data-source/csv-upload-form";
 import { JobStatusBadge } from "@/components/data-source/job-status-badge";
 import { requireOrgMembership } from "@/lib/auth/require-org-membership";
@@ -57,7 +57,7 @@ export default async function DataSourcesPage({
 
     return (
         <div className="space-y-6">
-            <ActiveJobsAutoRefresh enabled={hasActiveJobs} />
+            
 
             <header className="space-y-2">
                 <p className="text-sm font-medium text-zinc-500">Workspace data</p>
@@ -213,36 +213,16 @@ export default async function DataSourcesPage({
                         </div>
                     ) : (
                         <div className="mt-6 space-y-4">
-                            {recentJobs.map((job) => (
-                                <article
-                                    key={job.id}
-                                    className="rounded-xl border border-zinc-200 bg-zinc-50 p-4"
-                                >
-                                    <div className="flex flex-wrap items-center justify-between gap-3">
-                                        <div>
-                                            <p className="font-medium text-zinc-950">
-                                                {job.dataSource.name}
-                                            </p>
-                                            <p className="text-xs text-zinc-500">
-                                                {formatDateTime(job.createdAt)}
-                                            </p>
-                                        </div>
-
-                                        <JobStatusBadge status={job.status} />
-                                    </div>
-
-                                    <p className="mt-3 text-sm leading-6 text-zinc-700">
-                                        {job.message ?? "No message"}
-                                    </p>
-
-                                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-zinc-200">
-                                        <div
-                                            className="h-full rounded-full bg-zinc-950 transition-all"
-                                            style={{ width: `${job.progress}%` }}
-                                        />
-                                    </div>
-                                </article>
-                            ))}
+                                {recentJobs.map((job) => (
+                                    <LiveSyncJobRow
+                                        key={job.id}
+                                        job={{
+                                            ...job,
+                                            createdAt: job.createdAt.toISOString(),
+                                            finishedAt: job.finishedAt?.toISOString() ?? null,
+                                        }}
+                                    />
+                                ))}
                         </div>
                     )}
                 </div>

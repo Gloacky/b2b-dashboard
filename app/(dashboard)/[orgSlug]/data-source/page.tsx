@@ -2,10 +2,9 @@ import { z } from "zod";
 
 import { LiveSyncJobRow } from "@/components/data-source/live-sync-job-row";
 import { CsvUploadForm } from "@/components/data-source/csv-upload-form";
-import { JobStatusBadge } from "@/components/data-source/job-status-badge";
 import { requireOrgMembership } from "@/lib/auth/require-org-membership";
 import { getDataSourcePageData } from "@/lib/queries/data-source";
-import { formatDateTime } from "@/lib/utils/date";
+import { LiveDataSourceRow } from "@/components/data-source/live-data-source-row";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -135,63 +134,39 @@ export default async function DataSourcesPage({
                                     </tr>
                                 </thead>
 
-                                <tbody>
-                                    {dataSource.map((source) => {
-                                        const storedCsv = readStoredCsvCredentials(source.credentials);
-                                        const latestJob = source.syncJobs[0];
+                                    <tbody>
+                                        {dataSource.map((source) => {
+                                            const storedCsv = readStoredCsvCredentials(source.credentials);
+                                            const latestJob = source.syncJobs[0];
 
-                                        return (
-                                            <tr
-                                                key={source.id}
-                                                className="border-b border-zinc-100 align-top last:border-b-0"
-                                            >
-                                                <td className="py-4 pr-4">
-                                                    <div className="min-w-[180px]">
-                                                        <p className="font-medium text-zinc-950">{source.name}</p>
-                                                        <p className="mt-1 text-xs text-zinc-500">
-                                                            {source.provider} • {source.status}
-                                                        </p>
-                                                    </div>
-                                                </td>
-
-                                                <td className="py-4 pr-4">
-                                                    <div className="min-w-[180px]">
-                                                        <p className="truncate text-zinc-900">
-                                                            {storedCsv?.originalFileName ?? "Unknown file"}
-                                                        </p>
-                                                        <p className="mt-1 text-xs text-zinc-500">
-                                                            {formatBytes(storedCsv?.sizeInBytes)}
-                                                        </p>
-                                                    </div>
-                                                </td>
-
-                                                <td className="py-4 pr-4 text-zinc-900">
-                                                    {source._count.metrics.toLocaleString()}
-                                                </td>
-
-                                                <td className="py-4 pr-4">
-                                                    {latestJob ? (
-                                                        <div className="min-w-[220px] space-y-2">
-                                                            <JobStatusBadge status={latestJob.status} />
-                                                            <p className="text-xs leading-5 text-zinc-600">
-                                                                {latestJob.message ?? "No message"}
-                                                            </p>
-                                                            <p className="text-xs text-zinc-500">
-                                                                Progress: {latestJob.progress}%
-                                                            </p>
-                                                        </div>
-                                                    ) : (
-                                                        <span className="text-zinc-500">No jobs yet</span>
-                                                    )}
-                                                </td>
-
-                                                <td className="py-4 text-zinc-600">
-                                                    {formatDateTime(source.lastSyncedAt)}
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
+                                            return (
+                                                <LiveDataSourceRow
+                                                    key={source.id}
+                                                    source={{
+                                                        id: source.id,
+                                                        name: source.name,
+                                                        provider: source.provider,
+                                                        status: source.status,
+                                                        lastSyncedAt: source.lastSyncedAt?.toISOString() ?? null,
+                                                        createdAt: source.createdAt.toISOString(),
+                                                        originalFileName: storedCsv?.originalFileName ?? null,
+                                                        sizeInBytes: storedCsv?.sizeInBytes ?? null,
+                                                        metricCount: source._count.metrics,
+                                                        latestJob: latestJob
+                                                            ? {
+                                                                id: latestJob.id,
+                                                                status: latestJob.status,
+                                                                progress: latestJob.progress,
+                                                                message: latestJob.message ?? null,
+                                                                createdAt: latestJob.createdAt.toISOString(),
+                                                                finishedAt: latestJob.finishedAt?.toISOString() ?? null,
+                                                            }
+                                                            : null,
+                                                    }}
+                                                />
+                                            );
+                                        })}
+                                    </tbody>
                             </table>
                         </div>
                     )}

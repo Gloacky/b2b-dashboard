@@ -150,6 +150,8 @@ model Report {
   name String
   status ReportStatus @default(DRAFT)
   fileUrl String?
+  dateFrom DateTime?
+  dateTo DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

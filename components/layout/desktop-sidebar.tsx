@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BarChart3, Building2, Settings,Database,FileText } from "lucide-react";
+import { BarChart3, Building2, Settings,Database,FileText, } from "lucide-react";
 import { SignOutButton } from "../auth/sign-out-button";
 
 type OrganizationItem={
@@ -74,6 +74,14 @@ export function DesktopSidebar({currentOrgSlug,currentOrgName,organizations,user
                     >
                         <FileText className="h-4 w-4" />
                         Reports
+                    </Link>
+
+                    <Link
+                        href={`/${currentOrgSlug}/settings`}
+                        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950"
+                    >
+                        <Settings className="h-4 w-4" />
+                        Settings
                     </Link>
                 </div>
 

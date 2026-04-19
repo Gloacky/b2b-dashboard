@@ -69,6 +69,7 @@ model Organization {
   syncJobs SyncJob[]
   metrics MetricsDaily[]
   reports Report[]
+  invites Invite[]
 }
 
 model Membership {
@@ -158,4 +159,18 @@ model Report {
   organization Organization @relation(fields: [organizationId],references: [id],onDelete: Cascade)
   @@index([organizationId,createdAt])
 
+}
+
+model Invite {
+  id String @id @default(cuid())
+  email String
+  organizationId String
+  role OrgRole @default(ANALYST)
+  token String @unique
+  expireAt DateTime
+  createdAt DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId],references: [id],onDelete: Cascade)
+
+  @@unique([organizationId,email])
 }

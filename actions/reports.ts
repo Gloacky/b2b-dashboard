@@ -36,7 +36,7 @@ export async function createReportAction(_prevState:CreateReportState,formData:F
 
     if (!parsed.success) {
         return {
-            error: parsed.error.errors[0]?.message ?? "Invalid form data.",
+            error: parsed.error.issues[0]?.message ?? "Invalid form data.",
         };
     }
 

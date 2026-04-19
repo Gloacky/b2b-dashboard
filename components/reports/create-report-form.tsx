@@ -24,7 +24,7 @@ export function CreateReportForm({orgSlug,defaultFrom,defaultTo,disabled}:{orgSl
                     minLength={2}
                     maxLength={120}
                     disabled={disabled}
-                    className="block h-11 w-full rounded-xl border border-zinc-300 bg-white px-4 text-sm outline-none transition focus:border-zinc-900 disabled:cursor-not-allowed disabled:bg-zinc-100"
+                    className="block h-11 w-full rounded-xl border border-zinc-300 bg-white text-zinc-600 px-4 text-sm outline-none transition focus:border-zinc-900 disabled:cursor-not-allowed disabled:bg-zinc-100"
                     placeholder="January Performance Report"    
                 />
             </div>
@@ -42,7 +42,7 @@ export function CreateReportForm({orgSlug,defaultFrom,defaultTo,disabled}:{orgSl
                         required
                         defaultValue={defaultFrom}
                         disabled={disabled}
-                        className="block h-11 w-full rounded-xl border border-zinc-300 bg-white px-4 text-sm outline-none transition focus:border-zinc-900 disabled:cursor-not-allowed disabled:bg-zinc-100"
+                        className="block h-11 w-full rounded-xl border border-zinc-300 text-zinc-600 bg-white px-4 text-sm outline-none transition focus:border-zinc-900 disabled:cursor-not-allowed disabled:bg-zinc-100"
                     />
                 </div>
 
@@ -61,7 +61,7 @@ export function CreateReportForm({orgSlug,defaultFrom,defaultTo,disabled}:{orgSl
                         required
                         defaultValue={defaultTo}
                         disabled={disabled}
-                        className="block h-11 w-full rounded-xl border border-zinc-300 bg-white px-4 text-sm outline-none transition focus:border-zinc-900 disabled:cursor-not-allowed disabled:bg-zinc-100"
+                        className="block h-11 w-full rounded-xl border border-zinc-300 text-zinc-600 bg-white px-4 text-sm outline-none transition focus:border-zinc-900 disabled:cursor-not-allowed disabled:bg-zinc-100"
                     />
                 </div>
             </div>

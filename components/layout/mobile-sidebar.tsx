@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import {useState} from "react";
-import { BarChart3, Building2, Menu, X, Database } from "lucide-react";
+import { BarChart3, Building2, Menu, X, Database, FileText } from "lucide-react";
 import { SignOutButton } from "../auth/sign-out-button";
 
 
@@ -72,7 +72,7 @@ export function MobileSidebar({currentOrgSlug,currentOrgName,organizations,user}
                                 Workspace
                             </p>
 
-                            <Link href={`/{currentOrgSlug}/dashboard`} onClick={() =>setOpen(false)} className="flex items-center gap-3 rounded-xl bg-zinc-950 px-3 py-2.5 text-sm font-medium text-white">
+                            <Link href={`/${currentOrgSlug}/dashboard`} onClick={() =>setOpen(false)} className="flex items-center gap-3 rounded-xl bg-zinc-950 px-3 py-2.5 text-sm font-medium text-white">
                                 <BarChart3 className="h-4 w-4"/>
                                     Dashboard  
                             </Link>
@@ -84,6 +84,14 @@ export function MobileSidebar({currentOrgSlug,currentOrgName,organizations,user}
                             >
                                 <Database className="h-4 w-4" />
                                 Data sources
+                            </Link>
+
+                            <Link
+                                href={`/${currentOrgSlug}/reports`}
+                                className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950"
+                            >
+                                <FileText className="h-4 w-4" />
+                                Reports
                             </Link>
                         </div>
 

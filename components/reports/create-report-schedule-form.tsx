@@ -1,7 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
-
+import { useActionState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { createReportScheduleAction } from "@/actions/report-schedule";
 import {
     initialCreateReportScheduleState,
@@ -15,10 +15,17 @@ export function CreateReportScheduleForm({
     orgSlug: string;
     disabled: boolean;
 }) {
+    const router = useRouter();
     const [state, formAction] = useActionState(
         createReportScheduleAction,
         initialCreateReportScheduleState
     );
+
+    useEffect(()=>{
+        if (state.success){
+            router.refresh();
+        }
+    },[state.success,router]);
 
     return (
         <form action={formAction} className="space-y-5">

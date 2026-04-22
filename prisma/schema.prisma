@@ -12,7 +12,6 @@ datasource db {
   provider = "postgresql"
 }
 
-
 enum OrgRole {
   OWNER
   ADMIN
@@ -47,130 +46,156 @@ enum ReportStatus {
 }
 
 model User {
-  id String @id @default(cuid())
-  authUserId String @unique
-  email String @unique
-  name String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(cuid())
+  authUserId String   @unique
+  email      String   @unique
+  name       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   memberships Membership[]
 }
 
 model Organization {
-  id String @id @default(cuid())
-  name String
-  slug String @unique
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  membership Membership[]
-  dataSources DataSource[]
-  syncJobs SyncJob[]
-  metrics MetricsDaily[]
-  reports Report[]
-  invites Invite[]
+  membership      Membership[]
+  dataSources     DataSource[]
+  syncJobs        SyncJob[]
+  metrics         MetricsDaily[]
+  reports         Report[]
+  invites         Invite[]
+  reportSchedules ReportSchedule[]
 }
 
 model Membership {
-  id String @id @default(cuid())
-  userId String
+  id             String   @id @default(cuid())
+  userId         String
   organizationId String
-  role OrgRole @default(CLIENT)
-  createdAt DateTime @default(now())
+  role           OrgRole  @default(CLIENT)
+  createdAt      DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id],onDelete: Cascade)
-  organization Organization @relation(fields: [organizationId], references: [id],onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([userId, organizationId])
   @@index([organizationId, role])
 }
 
 model DataSource {
-  id String @id @default(cuid())
+  id             String             @id @default(cuid())
   organizationId String
-  provider DataSourceProvider
-  name String
-  status DataSourceStatus @default(DISCONNECTED)
-  credentials Json?
-  lastSyncedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  provider       DataSourceProvider
+  name           String
+  status         DataSourceStatus   @default(DISCONNECTED)
+  credentials    Json?
+  lastSyncedAt   DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
 
-  organization Organization @relation(fields: [organizationId],references: [id],onDelete: Cascade)
-  metrics MetricsDaily[]
-  syncJobs SyncJob[]
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  metrics      MetricsDaily[]
+  syncJobs     SyncJob[]
 
-  @@index([organizationId,provider])
+  @@index([organizationId, provider])
 }
 
 model SyncJob {
-  id String @id @default(cuid())
+  id             String        @id @default(cuid())
   organizationId String
-  dataSourceId String
-  status SyncJobStatus @default(PENDING)
-  progress Int @default(0)
-  message String?
-  startedAt DateTime?
-  finishedAt DateTime?
-  createdAt DateTime @default(now())
+  dataSourceId   String
+  status         SyncJobStatus @default(PENDING)
+  progress       Int           @default(0)
+  message        String?
+  startedAt      DateTime?
+  finishedAt     DateTime?
+  createdAt      DateTime      @default(now())
 
-  organization Organization @relation(fields: [organizationId],references: [id],onDelete: Cascade)
-  dataSource DataSource @relation(fields: [dataSourceId],references: [id],onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  dataSource   DataSource   @relation(fields: [dataSourceId], references: [id], onDelete: Cascade)
 
-  @@index([organizationId,status,createdAt])
-  @@index([dataSourceId,createdAt])
+  @@index([organizationId, status, createdAt])
+  @@index([dataSourceId, createdAt])
 }
 
 model MetricsDaily {
-  id String @id @default(cuid())
+  id             String   @id @default(cuid())
   organizationId String
-  dataSourceId String?
-  date DateTime @db.Date
-  channel String?
-  campaign String?
+  dataSourceId   String?
+  date           DateTime @db.Date
+  channel        String?
+  campaign       String?
 
-  sessions Int @default(0)
-  impressions Int @default(0)
-  clicks Int @default(0)
-  conversions Int @default(0)
-  spend Decimal @default(0) @db.Decimal(12,2)
-  revenue Decimal @default(0) @db.Decimal(12,2)
+  sessions    Int     @default(0)
+  impressions Int     @default(0)
+  clicks      Int     @default(0)
+  conversions Int     @default(0)
+  spend       Decimal @default(0) @db.Decimal(12, 2)
+  revenue     Decimal @default(0) @db.Decimal(12, 2)
 
-  organization Organization @relation(fields: [organizationId], references: [id],onDelete: Cascade)
-  dataSource DataSource? @relation(fields: [dataSourceId],references: [id],onDelete: SetNull)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  dataSource   DataSource?  @relation(fields: [dataSourceId], references: [id], onDelete: SetNull)
 
-  @@index([organizationId,date])
-  @@index([organizationId,channel,date])
-  @@index([dataSourceId,date])
+  @@index([organizationId, date])
+  @@index([organizationId, channel, date])
+  @@index([dataSourceId, date])
 }
 
 model Report {
-  id String @id @default(cuid())
+  id             String       @id @default(cuid())
   organizationId String
-  name String
-  status ReportStatus @default(DRAFT)
-  fileUrl String?
-  dateFrom DateTime?
-  dateTo DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  name           String
+  status         ReportStatus @default(DRAFT)
+  fileUrl        String?
+  dateFrom       DateTime?
+  dateTo         DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
-  organization Organization @relation(fields: [organizationId],references: [id],onDelete: Cascade)
-  @@index([organizationId,createdAt])
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
+  @@index([organizationId, createdAt])
 }
 
 model Invite {
-  id String @id @default(cuid())
-  email String
+  id             String   @id @default(cuid())
+  email          String
   organizationId String
-  role OrgRole @default(ANALYST)
-  token String @unique
-  expireAt DateTime
+  role           OrgRole  @default(ANALYST)
+  token          String   @unique
+  expireAt       DateTime
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, email])
+}
+
+enum ReportScheduleFrequency {
+  WEEKLY
+  MONTHLY
+}
+
+model ReportSchedule {
+  id             String                  @id @default(cuid())
+  organizationId String
+  name           String
+  recipientEmail String
+  frequency      ReportScheduleFrequency
+  active         Boolean                 @default(true)
+
+  lastRunAt DateTime?
+  nextRunAt DateTime
+
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  organization Organization @relation(fields: [organizationId],references: [id],onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  @@unique([organizationId,email])
+  @@index([organizationId, active])
+  @@index([active, nextRunAt])
 }

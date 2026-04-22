@@ -170,9 +170,17 @@ model Invite {
   expireAt       DateTime
   createdAt      DateTime @default(now())
 
+  status     InviteStatus @default(PENDING)
+  acceptedAt DateTime?
+
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([organizationId, email])
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
 }
 
 enum ReportScheduleFrequency {

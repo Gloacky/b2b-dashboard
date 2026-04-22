@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentAppUser } from "@/lib/auth/get-current-app-user";
 import {prisma} from "@/lib/db/prisma";
+import { acceptInviteAction } from "@/actions/accept-invite";
 
 export default async function AcceptInvitePage({params}:{params:Promise<{token:string}>}){
     const {token} = await params;
@@ -48,22 +49,25 @@ export default async function AcceptInvitePage({params}:{params:Promise<{token:s
         },
     });
 
-    if(existingMembership){
-        redirect (`/${invite.organization.slug}/dashboard`);
-    }
+    
 
-    await prisma.$transaction(async (tx)=>{
-        await tx.membership.create({
-            data:{
-                userId:user.id,
-                organizationId:invite.organizationId,
-                role:invite.role,
-            },
-        });
+    return(
+        <main className="flex min-h-screen items-center justify-center p-4">
+            <div className="w-full max-w-md rounded-2xl border p-6 text-center">
+                <h1 className="text-lg font-semibold">
+                    Join {invite.organization.name}
+                </h1>
+                <p className="mt-2 text-sm text-gray-600">
+                    You were invited as <b>{invite.role}</b>
+                </p>
 
-        await tx.invite.delete({
-            where: {id:invite.id},
-        });
-    });
-    redirect(`/${invite.organization.slug}/dashboard`);
+                <form action={acceptInviteAction}>
+                    <input type="hidden" name="token" value={token} />
+                    <button type="submit" className="mt-4 w-full rounded-xl bg-black text-white py-2">
+                        Accept invite
+                    </button>
+                </form>
+            </div>
+        </main>
+    );
 }

@@ -58,5 +58,5 @@ export async function acceptInviteAction(formData:FormData){
             },
         });
     });
-    console.log("ACCEPT INVITE TRIGGERED");
+    redirect("/");
 }

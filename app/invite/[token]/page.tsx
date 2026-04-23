@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentAppUser } from "@/lib/auth/get-current-app-user";
 import {prisma} from "@/lib/db/prisma";
 import { acceptInviteAction } from "@/actions/accept-invite";
+import { declineInviteAction } from "@/actions/decline-invite";
 
 export default async function AcceptInvitePage({params}:{params:Promise<{token:string}>}){
     const {token} = await params;
@@ -57,16 +58,23 @@ export default async function AcceptInvitePage({params}:{params:Promise<{token:s
                 <h1 className="text-lg font-semibold">
                     Join {invite.organization.name}
                 </h1>
-                <p className="mt-2 text-sm text-gray-600">
+                <p className="mt-2 text-sm text-zinc-500">
                     You were invited as <b>{invite.role}</b>
                 </p>
-
-                <form action={acceptInviteAction}>
-                    <input type="hidden" name="token" value={token} />
-                    <button type="submit" className="mt-4 w-full rounded-xl bg-black text-white py-2">
-                        Accept invite
-                    </button>
-                </form>
+                <div className="flex gap-4 items-center justify-center">
+                    <form action={acceptInviteAction}>
+                        <input type="hidden" name="token" value={token} />
+                            <button type="submit" className="mt-4 w-50 rounded-xl bg-black text-white py-2 hover:bg-gray-600 hover:cursor-pointer">
+                                Accept invite
+                            </button>
+                    </form>
+                    <form action={declineInviteAction}>
+                        <input type="hidden" name="token" value={token} />
+                        <button type="submit" className="mt-4 w-50 rounded-xl bg-red-500 border-red-50 text-white py-2 hover:cursor-pointer hover:bg-red-600">
+                            Decline invite
+                        </button>
+                    </form>
+                </div>
             </div>
         </main>
     );

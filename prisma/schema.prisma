@@ -181,6 +181,7 @@ model Invite {
 enum InviteStatus {
   PENDING
   ACCEPTED
+  DECLINED
 }
 
 enum ReportScheduleFrequency {

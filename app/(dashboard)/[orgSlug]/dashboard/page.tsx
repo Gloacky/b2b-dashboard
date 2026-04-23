@@ -6,6 +6,9 @@ import { ChannelChart } from "@/components/charts/channel-chart";
 import { RevenueChart } from "@/components/charts/revenue-chart";
 import { requireOrgMembership } from "@/lib/auth/require-org-membership";
 import {getDashboardMetrics, getDashboardOverview, parseDateRangeFormParams, } from "@/lib/queries/dashboard";
+import { GetPendingInvite } from "@/lib/queries/getPendingInvite";
+import { getCurrentAppUser } from "@/lib/auth/get-current-app-user";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +36,14 @@ function formatPercent(value: number) {
 export default async function DashboardPage({ params, searchParams }: { params: Promise<{ orgSlug:string }>; searchParams: Promise<{ from?: string; to?: string }>;}){
     const {orgSlug} = await params;
     const filters = await searchParams;
+
+    const user = await getCurrentAppUser();
+    if (user){
+        const pendingInvite = await GetPendingInvite(user.email);
+        if(pendingInvite !== null && pendingInvite?.invite.status === "PENDING"){
+            redirect(`/invite/${pendingInvite?.invite.token}`);
+        }
+    }
 
     const membership = await requireOrgMembership(orgSlug);
     const dateRange=parseDateRangeFormParams(filters);

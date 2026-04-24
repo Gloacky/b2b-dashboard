@@ -5,7 +5,7 @@ import { getNextRunAt, getReportWindow } from "@/lib/reports/schedule";
 import { generateReportPdf } from "@/jobs/generate-report-pdf";
 import { sendReportsReadyEmail } from "@/lib/email/send-report-email";
 
-export async function get(request:Request) {
+export async function GET(request:Request) {
     const authHeader = request.headers.get("authorization");
     const expected = process.env.CRON_SECRET;
 

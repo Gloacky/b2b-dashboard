@@ -1,39 +1,37 @@
 import "server-only";
 
-import { createReadStream } from "fs";
-import readline from "node:readline";
+
 
 import {parse} from "csv-parse";
 import {z} from "zod";
 
 import {prisma} from "@/lib/db/prisma";
 import { normalizeMetricCsvHeaders, normalizeMetricCsvRecord } from "@/lib/csv/metrics-csv";
-import { resolveCsvUploadPath } from "@/lib/storage/csv-files";
 
 const StoredCsvCredentialsSchema = z.object({
-    type: z.literal("csv-upload"),
-    fileKey:z.string().min(1),
+    type:z.literal("csv-upload"),
+    blobUrl:z.url(),
     originalFileName:z.string().min(1),
     sizeInBytes:z.number().int().nonnegative(),
     uploadedAt:z.string().min(1),
     format: z.literal("strict-v1"),
 });
 
-async function countCsvDataRows(filePath:string){
-    const stream = createReadStream(filePath);
-    const reader = readline.createInterface({
-        input:stream,
-        crlfDelay:Infinity,
-    });
+async function downloadCsv(blobUrl:string){
+    const response = await fetch(blobUrl);
 
-    let nonEmptyLineCount = 0;
-
-    for await(const line of reader){
-        if(line.trim()!==""){
-            nonEmptyLineCount +=1;
-        }
+    if(!response.ok){
+        throw new Error(`Failed to download CSV: ${response.status}`);
     }
-    return Math.max(0,nonEmptyLineCount-1);
+
+    return await response.text();
+}
+
+async function countCsvDataRows(csvText:string){
+    return Math.max(
+        0,
+        csvText.split(/\r?\n/).filter((line)=>line.trim()!=='').length-1
+    );
 }
 
 async function updateJob(
@@ -94,7 +92,7 @@ export async function processCsvSyncJob(jobId:string){
             throw new Error("CSV file metadata is missing or invalid");
         }
 
-        const filePath = resolveCsvUploadPath(parsedCredentials.data.fileKey);
+        const csvText = await downloadCsv(parsedCredentials.data.blobUrl);
 
         await prisma.dataSource.update({
             where: {id:dataSourceId},
@@ -103,7 +101,7 @@ export async function processCsvSyncJob(jobId:string){
 
         await updateJob(jobId,{progress:12,message:"Counting rows",});
 
-        const totalRows = await countCsvDataRows(filePath);
+        const totalRows = await countCsvDataRows(csvText);
 
         if (totalRows === 0){
             throw new Error("CSV file has no data rows");
@@ -122,7 +120,7 @@ export async function processCsvSyncJob(jobId:string){
 
         await updateJob(jobId,{progress:25,message:"Importing metrics",});
 
-        const parser = createReadStream(filePath).pipe(
+        const parser = parse(csvText).pipe(
             parse({
                 bom:true,
                 columns:normalizeMetricCsvHeaders,

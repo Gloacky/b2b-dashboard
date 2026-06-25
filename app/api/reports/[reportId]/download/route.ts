@@ -1,8 +1,6 @@
 import { NextRequest } from "next/server";
 import {prisma} from "@/lib/db/prisma";
 import { requireAuthenticatedUser } from "@/lib/auth/require-authenticated-user";
-import { streamPdfReport } from "@/lib/storage/pdf-files";
-import { Readable } from "node:stream";
 
 export async function GET(request: NextRequest,{ params }: { params: Promise<{ reportId: string }> }){
     const {reportId} = await params;
@@ -40,20 +38,25 @@ export async function GET(request: NextRequest,{ params }: { params: Promise<{ r
     }
 
     try{
-        const fileStream = streamPdfReport(report.fileUrl);
-        const readableStream = Readable.toWeb(fileStream) as ReadableStream;
+        const response = await fetch(report.fileUrl);
+
+        if(!response.ok || !response.body){
+            return new Response("File not found",{
+                status:404,
+            });
+        }
 
         const safeName = report.name.replace(/[^\w\s-]/g, "").replace(/\s+/g, "-").toLowerCase();
 
-        return new Response(readableStream,{
+        return new Response(response.body,{
             headers:{
                 "Content-Type":"application/pdf",
-                "Content-Disposition": `attachment; filename="${safeName}.pdf"`,
-                "Cache-Control": "private, no-cache",
+                "Content-Disposition":`attachment; filename=${safeName}.pdf`,
+                "Cache-Control":"private, no-cache",
             },
         });
     }catch(error){
         console.error("[/api/reports/download]",error);
-        return new Response("File not found",{status:404});
+        return new Response ("File not found",{status:404,});
     }
 }

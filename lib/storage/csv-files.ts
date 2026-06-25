@@ -1,4 +1,5 @@
 import "server-only";
+import { put } from "@vercel/blob";
 
 import { randomUUID } from "node:crypto";
 import { mkdir,writeFile } from "node:fs/promises";
@@ -28,20 +29,16 @@ export async function saveCsvUpload(args:{file:File;organizationId:string;}){
     const absolutePath = path.join(organizationDir,storedName);
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(absolutePath,buffer);
+
+    
+    const blob = await put(storedName,file,{
+        access:"private"
+    });
 
     return {
-        fileKey: path.relative(UPLOADS_ROOT, absolutePath).replace(/\\/g, "/"),
+        blobUrl:blob.url,
+        pathname:blob.pathname,
         originalFileName:file.name,
         sizeInBytes:buffer.byteLength,
     };
-}
-
-export function resolveCsvUploadPath(fileKey:string){
-    const absolutePath = path.resolve(UPLOADS_ROOT,fileKey);
-
-    if(!absolutePath.startsWith(path.resolve(UPLOADS_ROOT))) {
-        throw new Error("Invalid file path");
-    }
-    return absolutePath;
 }

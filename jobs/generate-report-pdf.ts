@@ -78,13 +78,13 @@ export async function generateReportPdf(reportId:string){
             },
         });
 
-        const {fileKey} = await savePdfReport({
+        const {url} = await savePdfReport({
             buffer:Buffer.from(pdfBuffer),
             organizationId:report.organization.id,
             reportId:report.id,
         });
 
-        await updateReport(reportId,{status:"READY",fileUrl:fileKey,});
+        await updateReport(reportId,{status:"READY",fileUrl:url,});
 
         console.log(`[generateReportPdf] report ${reportId} ready`);
     }catch(error){
